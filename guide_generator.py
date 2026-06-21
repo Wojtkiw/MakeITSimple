@@ -21,14 +21,14 @@ FORMAT ODPOWIEDZI — zwróć WYŁĄCZNIE poprawny JSON, bez markdown, bez ```js
       {{"nazwa": "nazwa kroku, części lub elementu", "opis": "kilka słów: co to / co robi"}}
     ],
     "parametry": [
-      {{"nazwa": "krótki symbol lub nazwa parametru, np. 'N', 'p_c', 'k', 'learning rate'", "opis": "czym jest ten parametr / za co odpowiada, np. 'rozmiar populacji', 'prawdopodobieństwo krzyżowania' — MUSI różnić się od pola nazwa, nie powtarzaj tego samego tekstu", "wartosc": "opcjonalnie typowa wartość lub zakres, np. '50-200'; jeśli jej nie znasz, zostaw pusty string"}}
+      {{"nazwa": "SAM symbol/oznaczenie parametru, jak najkrótsze — użyj standardowego symbolu z wiedzy eksperckiej (np. 'N' = rozmiar populacji, 'p_c' = prawd. krzyżowania, 's' = stride, 'lr' = learning rate), nawet jeśli materiał nie podaje go wprost. NIE wpisuj tu opisowej nazwy — znaczenie idzie do pola 'opis'. Dopiero gdy parametr naprawdę nie ma przyjętego symbolu, wpisz 1-2 słowa nazwy", "opis": "czym jest ten parametr / za co odpowiada, np. 'rozmiar populacji', 'prawdopodobieństwo krzyżowania' — MUSI różnić się od pola nazwa, nie powtarzaj tego samego tekstu", "wartosc": "opcjonalnie typowa wartość lub zakres, np. '50-200'; jeśli jej nie znasz, zostaw pusty string"}}
     ]
   }}
 ]}}
 
 DÓŁ KARTY — pola "skladniki" / "parametry" (oba opcjonalne, niezależne od siebie):
 - "skladniki": jeśli pojęcie ma nazwane kroki, części składowe lub elementy (np. etapy algorytmu, składowe wzoru, warstwy architektury) — wypisz je KOMPLETNIE, po kolei, każdy z krótkim opisem (nie ucinaj do kilku). Jeśli pojęcie jest czysto opisowe i nie ma naturalnych części — zostaw [].
-- "parametry": jeśli pojęcie ma istotne nastawy/hiperparametry — wypisz każdy jako PARĘ: krótki symbol/nazwa w polu "nazwa" (np. "N", "p_c", "k") + wyjaśnienie czym jest w polu "opis" (np. "rozmiar populacji", "prawdopodobieństwo krzyżowania"). NIGDY nie wpisuj tego samego tekstu w "nazwa" i "opis" — to ma być symbol + jego znaczenie, jak "N" = "rozmiar populacji". Pole "wartosc" jest opcjonalne (typowa liczba/zakres albo pusty string). Jeśli pojęcie nie ma sensownych parametrów — zostaw [].
+- "parametry": jeśli pojęcie ma istotne nastawy/hiperparametry — wypisz każdy jako PARĘ: krótki symbol w polu "nazwa" (np. "N", "p_c", "k") + wyjaśnienie czym jest w polu "opis" (np. "rozmiar populacji", "prawdopodobieństwo krzyżowania"). NIGDY nie wpisuj tego samego tekstu w "nazwa" i "opis" — to ma być symbol + jego znaczenie, jak "N" = "rozmiar populacji". Pole "wartosc" jest opcjonalne (typowa liczba/zakres albo pusty string). Jeśli pojęcie nie ma sensownych parametrów — zostaw [].
 - Wiele pojęć (zwłaszcza z innych dziedzin) nie ma ani składników, ani parametrów — wtedy zostaw oba puste ([]). Karta skończy się wtedy na analogii. To jest poprawne i lepsze niż sztuczne wypełnianie pól.
 
 ZASADY:
