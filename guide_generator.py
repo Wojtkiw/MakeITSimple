@@ -142,7 +142,7 @@ def _generate_batch(client, batch_text):
         raw_response = client.chat.completions.with_raw_response.create(
             model=MODEL,
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
+            temperature=0,  # ekstrakcja pojec, nie kreatywne pisanie: 0 daje powtarzalna liczbe kart i zblizone wyniki miedzy formatami
             max_tokens=MAX_OUTPUT_TOKENS
         )
     except Exception as e:
