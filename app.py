@@ -57,17 +57,13 @@ CARD_STYLE = """
 .lbl-top {margin-top:0;}
 .lbl::before {content:'';width:4px;height:14px;border-radius:2px;background:currentColor;flex:none;}
 .l-blue {color:#66ffff;} .l-teal {color:#00ff99;} .l-amber {color:#ff9933;}
-.l-green {color:#33cc00;} .l-coral {color:#ef5350;} .l-violet {color:#b06bff;}
+.l-violet {color:#b06bff;}
 .concept {font-family:'Lora',serif;font-weight:600;font-size:32px;line-height:1.15;
           color:#f6f5f1;margin:0 0 4px;}
 .box {border-radius:9px;padding:14px 18px;border-left:3px solid;font-size:14px;
       line-height:1.65;margin:0;color:#d6d4ce;}
 .b-teal {background:rgba(0,255,153,.05);border-left-color:#00ff99;}
 .b-amber {background:rgba(255,153,51,.05);border-left-color:#ff9933;font-style:italic;}
-.b-green {background:rgba(51,204,0,.05);border-left-color:#33cc00;}
-.b-coral {background:rgba(239,83,80,.05);border-left-color:#ef5350;}
-.b-coral p {margin:4px 0;font-size:13.5px;line-height:1.6;}
-.b-coral b {color:#ef5350;font-weight:600;}
 .b-violet {background:rgba(176,107,255,.05);border-left-color:#b06bff;}
 .b-violet p {margin:4px 0;font-size:13.5px;line-height:1.6;}
 .b-violet b {color:#b06bff;font-weight:600;}
@@ -75,21 +71,6 @@ CARD_STYLE = """
 """
 
 # RENDEROWANIE KART
-def render_warto_znac(items):
-    if not items:
-        return ""
-    lista = "".join(
-        f'<p><b>{i["termin"]}</b> — {i["definicja"]}</p>'
-        for i in items
-    )
-    return f'<div class="lbl l-coral">Warto znać</div><div class="box b-coral">{lista}</div>'
-
-def render_przyklad(przyklad):
-    if not przyklad:
-        return ""
-    return (f'<div class="lbl l-green">Przykład</div>'
-            f'<div class="box b-green">{przyklad}</div>')
-
 # Tor strukturalny: lista kroków/części pojęcia (np. etapy algorytmu genetycznego).
 def render_skladniki(items):
     if not items:
@@ -115,14 +96,10 @@ def render_parametry(items):
     return f'<div class="lbl l-violet">Parametry</div><div class="box b-violet">{lista}</div>'
 
 def render_card(pojecie_data):
-    warto_znac_html = render_warto_znac(pojecie_data.get("warto_znac", []))
-    # Dol karty to jeden tor. Przyklad liczbowy ma pierwszenstwo; gdy go brak,
-    # pokazujemy rozklad strukturalny (skladniki + ewentualne parametry).
-    if pojecie_data.get("przyklad"):
-        dol_html = render_przyklad(pojecie_data.get("przyklad", ""))
-    else:
-        dol_html = (render_skladniki(pojecie_data.get("skladniki", []))
-                    + render_parametry(pojecie_data.get("parametry", [])))
+    # Dol karty: skladniki (kroki/czesci) + ewentualne parametry. Oba opcjonalne -
+    # pojecia czysto opisowe nie maja zadnego i karta konczy sie na analogii.
+    dol_html = (render_skladniki(pojecie_data.get("skladniki", []))
+                + render_parametry(pojecie_data.get("parametry", [])))
     return f"""
     <div class="karta">
         <div class="lbl lbl-top l-blue">Pojęcie</div>
@@ -132,7 +109,6 @@ def render_card(pojecie_data):
         <div class="lbl l-amber">Analogia z życia</div>
         <div class="box b-amber">{pojecie_data['analogia']}</div>
         {dol_html}
-        {warto_znac_html}
     </div>
     """
 

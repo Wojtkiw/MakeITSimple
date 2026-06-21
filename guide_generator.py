@@ -17,39 +17,25 @@ FORMAT ODPOWIEDZI — zwróć WYŁĄCZNIE poprawny JSON, bez markdown, bez ```js
     "pojecie": "nazwa pojęcia",
     "wyjasnienie": "Max 3 zdania wyłącznie techniczne, bez analogii i przykładów z życia (te są w osobnych polach). Wyjaśnij pojęcie tak, by ktoś, kto NIE widział materiału źródłowego, w pełni je zrozumiał: podaj mechanizm działania, cel i intuicję stojącą za pojęciem. NIE przepisuj skrótowych haseł z fragmentu — rozwiń je własną wiedzą w spójne, samodzielne wyjaśnienie pełnymi zdaniami. Wyjaśnienie ma być pełniejsze niż materiał źródłowy, a nie jego powtórzeniem.",
     "analogia": "1-2 zdania. Jeden żywy obraz z życia codziennego, który oddaje istotę pojęcia i jest łatwy do zapamiętania (haczyk pamięciowy) — wzór: 'zakleszczenie = dwie osoby na wąskim moście, które nie mogą się wyminąć'. Najlepszy haczyk to jedno zdanie; drugie tylko jeśli trzeba połączyć obraz z pojęciem. NIE: abstrakcja, mgła, góry. TAK: codzienne urządzenia, sytuacje z pracy/szkoły/domu. Tylko analogia — bez tłumaczenia technicznego.",
-    "przyklad": "TOR LICZBOWY. Wypełnij TYLKO gdy pojęcie da się pokazać na konkretnych wartościach (rachunek, wzór, prawdopodobieństwo, próg, waga, gradient); w innym wypadku zostaw pusty string. 1-3 pełne ZDANIA z wplecionymi liczbami, nigdy telegraficzny zrzut rozdzielony średnikami. Jeśli pojęcie opisuje proces (coś się aktualizuje, przepływa albo cofa), POKAŻ KIERUNEK prozą: skąd wartość startuje i jak wędruje, żeby było widać przepływ. Wzór (propagacja wsteczna): 'Sieć przewidziała 0,8, choć poprawna odpowiedź to 1,0, więc na wyjściu powstaje błąd 0,2. Ten błąd wędruje wstecz do wagi: jej gradient wynosi 0,2 × 0,5 = 0,1, więc przy kroku uczenia 0,1 waga maleje z 2,0 do 1,99.' Prosta funkcja = jedno zdanie (ReLU: 'Dla wejścia -0,3 funkcja zwraca 0, a dla wejścia 0,7 przepuszcza wartość bez zmian, czyli 0,7.'). Prawdopodobieństwo to też liczby (Naive Bayes: 'Filtr liczy P(spam)=0,93, więc mail trafia do spamu.'). ZAKAZ: nie zaczynaj od fraz wprowadzających typu 'Przykładem może być...', 'Dla przykładu, jeśli...', 'Na przykład...' — wejdź od razu w konkret z liczbami; nie rób z nazwy pojęcia podmiotu zdania; nie opisuj ogólnie JAK coś działa (to należy do 'wyjasnienie').",
     "skladniki": [
-      {{"nazwa": "nazwa kroku lub części", "opis": "kilka słów: co robi"}}
+      {{"nazwa": "nazwa kroku, części lub elementu", "opis": "kilka słów: co to / co robi"}}
     ],
     "parametry": [
       {{"nazwa": "nazwa parametru", "opis": "za co odpowiada", "wartosc": "konkretna typowa wartość lub zakres, np. '50-200' albo '0,6-0,95'; gdy fragment nie podaje liczb, użyj typowych wartości ze swojej wiedzy, nie pisz 'zmienna'"}}
-    ],
-    "warto_znac": [
-      {{"termin": "termin użyty w wyjaśnieniu", "definicja": "jednozdaniowa definicja"}}
     ]
   }}
 ]}}
 
-DÓŁ KARTY — wybór toru (pola "przyklad" / "skladniki" / "parametry"):
-- Dla KAŻDEGO pojęcia wybierz DOKŁADNIE JEDEN tor (albo żaden). Nigdy nie wypełniaj naraz "przyklad" i "skladniki".
-- Krok 1: czy pojęcie da się pokazać na konkretnych wartościach (rachunek, wzór, prawdopodobieństwo, próg, waga, gradient)? Jeśli TAK — wypełnij "przyklad" (zdania z liczbami), a "skladniki" i "parametry" zostaw puste ([]).
-- Krok 2: jeśli NIE, ale pojęcie to proces/metoda/algorytm złożony z nazwanych kroków lub części (np. algorytm genetyczny) — wypełnij "skladniki" KOMPLETNIE: wszystkie kluczowe kroki/części po kolei, każdy z krótkim opisem (nie ucinaj do kilku). "przyklad" zostaw pusty (""). Jeśli pojęcie ma też istotne nastawy — wypełnij dodatkowo "parametry"; jeśli nie ma sensownych parametrów — zostaw "parametry" puste ([]).
-- Krok 3: jeśli ani liczb, ani struktury (pojęcie czysto opisowe) — zostaw wszystkie trzy pola puste ("" oraz []). Karta skończy się na analogii i ewentualnym "warto_znac". To jest dozwolone i lepsze niż przeredagowanie definicji.
+DÓŁ KARTY — pola "skladniki" / "parametry" (oba opcjonalne, niezależne od siebie):
+- "skladniki": jeśli pojęcie ma nazwane kroki, części składowe lub elementy (np. etapy algorytmu, składowe wzoru, warstwy architektury) — wypisz je KOMPLETNIE, po kolei, każdy z krótkim opisem (nie ucinaj do kilku). Jeśli pojęcie jest czysto opisowe i nie ma naturalnych części — zostaw [].
+- "parametry": jeśli pojęcie ma istotne nastawy/hiperparametry (np. liczba sąsiadów k, rozmiar populacji, learning rate) — wypisz je z typową wartością lub zakresem. Jeśli nie ma sensownych parametrów — zostaw [].
+- Wiele pojęć (zwłaszcza z innych dziedzin) nie ma ani składników, ani parametrów — wtedy zostaw oba puste ([]). Karta skończy się wtedy na analogii. To jest poprawne i lepsze niż sztuczne wypełnianie pól.
 
 ZASADY:
 - Karty twórz WYŁĄCZNIE dla pojęć, które fragment nazywa lub definiuje — nie dodawaj kart dla pojęć, których fragment nie wymienia.
 - Samą TREŚĆ wyjaśnień rozwijaj swoją wiedzą ekspercką, żeby były zrozumiałe i pełniejsze niż źródło. Trzymaj się tematu danego pojęcia — nie zmieniaj tematu ani nie wprowadzaj nowych, osobnych pojęć zamiast wyjaśnienia.
 - Wypisz WSZYSTKIE pojęcia zdefiniowane w tym fragmencie — każdy termin, który fragment definiuje, dostaje osobną kartę. NIE streszczaj do kilku najważniejszych, NIE pomijaj żadnego.
 - Opisuj każde pojęcie niezależnie. NIE wymyślaj powiązań między pojęciami, których nie ma w kontekście (np. "wagi są związane z PCA" jeśli kontekst tego nie mówi).
-
-Pole "warto_znac" — najważniejsza zasada:
-- Wypisz tu termin TYLKO jeśli spełnia OBA warunki: (1) użyłeś go w polu "wyjasnienie" tego pojęcia, ORAZ (2) jego definicja NIE pojawia się NIGDZIE w podanym fragmencie.
-- Jeśli termin jest osobnym pojęciem na liście "pojecia" (ma własną kartę) — to znaczy że jest zdefiniowany. NIE wrzucaj go do warto_znac.
-- Jeśli termin jest wyjaśniony gdziekolwiek we fragmencie — NIE wrzucaj go do warto_znac.
-- Przykład: jeśli w wyjaśnieniu "CNN" użyłeś "sieci neuronowe", a we fragmencie nie ma definicji czym są sieci neuronowe — wtedy DODAJ "sieci neuronowe" do warto_znac karty CNN.
-- Jeśli nie ma brakujących terminów — zwróć [].
-- Maksymalnie 4 terminy na kartę — jeśli jest więcej kandydatów, wybierz najważniejsze.
-- Jeśli termin jest w warto_znac — użyj go normalnie w "wyjasnienie" bez dodatkowego tłumaczenia w nawiasie. Definicja jest już w warto_znac.
 
 Kontekst z materiałów użytkownika:
 {context}"""
@@ -114,20 +100,6 @@ def _concept_core(name):
         if sep in name:
             name = name.split(sep)[0]
     return _normalize(name)
-
-
-# Usuwa z warto_znac terminy, które mają własną kartę pojęcia na liście.
-# Model czasem wrzuca tam terminy, które sam właśnie wyjaśnił - to byłoby redundantne.
-def _filter_warto_znac(pojecia):
-    concept_cores = {_concept_core(p.get("pojecie", "")) for p in pojecia}
-    for p in pojecia:
-        kept = []
-        for item in p.get("warto_znac", []):
-            termin = _normalize(item.get("termin", ""))
-            if termin and termin not in concept_cores:
-                kept.append(item)
-        p["warto_znac"] = kept
-    return pojecia
 
 
 # Usuwa duplikaty pojęć po scaleniu wyników z wielu partii.
@@ -268,7 +240,7 @@ def generate_guide(raw_text, progress_callback=None):
 
     if not all_pojecia:
         return None
-    return _filter_warto_znac(_dedupe(all_pojecia))
+    return _dedupe(all_pojecia)
 
 
 # Q&A z ugruntowaniem w dokumencie (RAG, wersja ścisła).
