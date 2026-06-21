@@ -17,12 +17,24 @@ FORMAT ODPOWIEDZI — zwróć WYŁĄCZNIE poprawny JSON, bez markdown, bez ```js
     "pojecie": "nazwa pojęcia",
     "wyjasnienie": "Max 3 zdania wyłącznie techniczne, bez analogii i przykładów z życia (te są w osobnych polach). Wyjaśnij pojęcie tak, by ktoś, kto NIE widział materiału źródłowego, w pełni je zrozumiał: podaj mechanizm działania, cel i intuicję stojącą za pojęciem. NIE przepisuj skrótowych haseł z fragmentu — rozwiń je własną wiedzą w spójne, samodzielne wyjaśnienie pełnymi zdaniami. Wyjaśnienie ma być pełniejsze niż materiał źródłowy, a nie jego powtórzeniem.",
     "analogia": "1-2 zdania. Jeden żywy obraz z życia codziennego, który oddaje istotę pojęcia i jest łatwy do zapamiętania (haczyk pamięciowy) — wzór: 'zakleszczenie = dwie osoby na wąskim moście, które nie mogą się wyminąć'. Najlepszy haczyk to jedno zdanie; drugie tylko jeśli trzeba połączyć obraz z pojęciem. NIE: abstrakcja, mgła, góry. TAK: codzienne urządzenia, sytuacje z pracy/szkoły/domu. Tylko analogia — bez tłumaczenia technicznego.",
-    "przyklad": "Max 1-3 zdania. Prosty, konkretny przykład DZIAŁANIA pojęcia — przebieg na konkretnych wartościach lub jednym przypadku, do prześledzenia jak rachunek. Wzorzec: 'waga 2,0 daje błąd 5; próbujemy 2,1 -> błąd rośnie do 5,3, więc krok w przeciwną stronę'. ZASADA: pokaż przebieg na konkrecie, NIE opisuj mechanizmu słowami. TEST ODCIĘCIA: jeśli zdanie mogłoby stać w polu 'wyjasnienie' (opisuje JAK to działa ogólnie), to NIE należy tutaj. Trzymaj PROSTY poziom, bez ciężkich wyprowadzeń. Dla pojęć nietechnicznych: jeden konkretny przypadek użycia (np. 'filtr liczy prawdopodobieństwo spamu 0,93 -> mail trafia do spamu'), nie definicja.",
+    "przyklad": "TOR LICZBOWY. Wypełnij TYLKO gdy pojęcie da się pokazać na konkretnych wartościach (rachunek, wzór, prawdopodobieństwo, próg, waga, gradient); w innym wypadku zostaw pusty string. 1-3 pełne ZDANIA z wplecionymi liczbami, nigdy telegraficzny zrzut rozdzielony średnikami. Jeśli pojęcie opisuje proces (coś się aktualizuje, przepływa albo cofa), POKAŻ KIERUNEK prozą: skąd wartość startuje i jak wędruje, żeby było widać przepływ. Wzór (propagacja wsteczna): 'Sieć przewidziała 0,8, choć poprawna odpowiedź to 1,0, więc na wyjściu powstaje błąd 0,2. Ten błąd wędruje wstecz do wagi: jej gradient wynosi 0,2 × 0,5 = 0,1, więc przy kroku uczenia 0,1 waga maleje z 2,0 do 1,99.' Prosta funkcja = jedno zdanie (ReLU: 'Dla wejścia -0,3 funkcja zwraca 0, a dla wejścia 0,7 przepuszcza wartość bez zmian, czyli 0,7.'). Prawdopodobieństwo to też liczby (Naive Bayes: 'Filtr liczy P(spam)=0,93, więc mail trafia do spamu.'). ZAKAZ: nie zaczynaj od fraz wprowadzających typu 'Przykładem może być...', 'Dla przykładu, jeśli...', 'Na przykład...' — wejdź od razu w konkret z liczbami; nie rób z nazwy pojęcia podmiotu zdania; nie opisuj ogólnie JAK coś działa (to należy do 'wyjasnienie').",
+    "skladniki": [
+      {{"nazwa": "nazwa kroku lub części", "opis": "kilka słów: co robi"}}
+    ],
+    "parametry": [
+      {{"nazwa": "nazwa parametru", "opis": "za co odpowiada", "wartosc": "konkretna typowa wartość lub zakres, np. '50-200' albo '0,6-0,95'; gdy fragment nie podaje liczb, użyj typowych wartości ze swojej wiedzy, nie pisz 'zmienna'"}}
+    ],
     "warto_znac": [
       {{"termin": "termin użyty w wyjaśnieniu", "definicja": "jednozdaniowa definicja"}}
     ]
   }}
 ]}}
+
+DÓŁ KARTY — wybór toru (pola "przyklad" / "skladniki" / "parametry"):
+- Dla KAŻDEGO pojęcia wybierz DOKŁADNIE JEDEN tor (albo żaden). Nigdy nie wypełniaj naraz "przyklad" i "skladniki".
+- Krok 1: czy pojęcie da się pokazać na konkretnych wartościach (rachunek, wzór, prawdopodobieństwo, próg, waga, gradient)? Jeśli TAK — wypełnij "przyklad" (zdania z liczbami), a "skladniki" i "parametry" zostaw puste ([]).
+- Krok 2: jeśli NIE, ale pojęcie to proces/metoda/algorytm złożony z nazwanych kroków lub części (np. algorytm genetyczny) — wypełnij "skladniki" KOMPLETNIE: wszystkie kluczowe kroki/części po kolei, każdy z krótkim opisem (nie ucinaj do kilku). "przyklad" zostaw pusty (""). Jeśli pojęcie ma też istotne nastawy — wypełnij dodatkowo "parametry"; jeśli nie ma sensownych parametrów — zostaw "parametry" puste ([]).
+- Krok 3: jeśli ani liczb, ani struktury (pojęcie czysto opisowe) — zostaw wszystkie trzy pola puste ("" oraz []). Karta skończy się na analogii i ewentualnym "warto_znac". To jest dozwolone i lepsze niż przeredagowanie definicji.
 
 ZASADY:
 - Karty twórz WYŁĄCZNIE dla pojęć, które fragment nazywa lub definiuje — nie dodawaj kart dla pojęć, których fragment nie wymienia.
