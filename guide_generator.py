@@ -280,3 +280,83 @@ def answer_question(question, faiss_index, k=3, client=None):
         raise RuntimeError(f"Błąd API: {e}")
     answer = response.choices[0].message.content.strip()
     return answer, fragments
+
+
+# Przepuszcza tylko pytania w pełnym formacie: 4 opcje i poprawna litera A-D.
+# Model czasem urwie opcję albo poda zły indeks — wadliwe wpisy odsiewamy, żeby UI
+# nie wywaliło się na braku pola przy renderowaniu odpowiedzi.
+def _valid_question(q):
+    if not isinstance(q, dict):
+        return False
+    opcje = q.get("opcje")
+    if not isinstance(opcje, list) or len(opcje) != 4:
+        return False
+    if str(q.get("poprawna", "")).strip().upper() not in {"A", "B", "C", "D"}:
+        return False
+    return bool(str(q.get("pytanie", "")).strip())
+
+
+# Quiz ABCD układany z gotowych kart pojęć.
+# Dostaje JUŻ wybraną listę kart (losowanie i pilnowanie pokrycia materiału robi UI),
+# dla każdej karty prosi o jedno pytanie z czterema odpowiedziami i jedną poprawną.
+# Jedno tanie wywołanie na rundę — bez batchowania, bezpieczne dla limitu w dniu obrony.
+# Zwraca listę pytań [{pojecie, pytanie, opcje[4], poprawna}] z odsianymi wadliwymi wpisami.
+def generate_quiz(concept_cards, client=None):
+    if not concept_cards:
+        return []
+    if client is None:
+        client = OpenAI(
+            api_key=st.secrets["GROQ_API_KEY"],
+            base_url=st.secrets["GROQ_BASE_URL"]
+        )
+    # Każde pojęcie podajemy nazwą + wyjaśnieniem, żeby pytanie trzymało się materiału, a nie wiedzy ogólnej modelu.
+    pojecia_blok = "\n\n".join(
+        f'POJĘCIE: {c.get("pojecie", "")}\nWYJAŚNIENIE: {c.get("wyjasnienie", "")}'
+        for c in concept_cards
+    )
+    prompt = (
+        "Układasz quiz ABCD dla studenta na podstawie podanych pojęć. "
+        "Dla KAŻDEGO pojęcia ułóż dokładnie jedno pytanie sprawdzające ZROZUMIENIE (nie samą definicję), "
+        "z czterema odpowiedziami, z których dokładnie jedna jest poprawna, a trzy to sensowne ale błędne "
+        "dystraktory. Pisz po polsku, zwięźle.\n\n"
+        "Zwróć WYŁĄCZNIE poprawny JSON, bez markdown, bez ```:\n"
+        '{"pytania": [{"pojecie": "nazwa pojęcia", "pytanie": "treść pytania", '
+        '"opcje": ["tekst A", "tekst B", "tekst C", "tekst D"], "poprawna": "A"}]}\n'
+        'Pole "opcje" to czysty tekst odpowiedzi BEZ prefiksów typu "A)". '
+        'Pole "poprawna" to litera A, B, C lub D wskazująca pozycję poprawnej odpowiedzi na liście "opcje".\n\n'
+        f"POJĘCIA:\n{pojecia_blok}"
+    )
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            max_tokens=2200
+        )
+    except Exception as e:
+        msg = str(e).lower()
+        if "rate" in msg or "tokens per minute" in msg or "tpm" in msg:
+            raise RuntimeError("Przekroczony limit tokenów Groq. Spróbuj ponownie za chwilę.")
+        if "timeout" in msg:
+            raise RuntimeError("Groq nie odpowiedział w czasie. Spróbuj ponownie.")
+        raise RuntimeError(f"Błąd API: {e}")
+
+    raw = response.choices[0].message.content.strip()
+    # Scout potrafi owinąć JSON w blok markdown mimo zakazu — zdejmujemy fencing jak w _generate_batch.
+    if raw.startswith("```"):
+        raw = raw.split("\n", 1)[-1]
+        if "```" in raw:
+            raw = raw[:raw.rfind("```")]
+        raw = raw.strip()
+    try:
+        data = _canon_keys(json.loads(raw))
+        pytania = data["pytania"]
+    except (json.JSONDecodeError, KeyError, TypeError):
+        raise RuntimeError("Nie udało się ułożyć quizu. Spróbuj ponownie.")
+
+    quiz = []
+    for q in pytania:
+        if _valid_question(q):
+            q["poprawna"] = str(q["poprawna"]).strip().upper()
+            quiz.append(q)
+    return quiz
