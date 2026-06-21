@@ -54,16 +54,18 @@ Pole "warto_znac" — najważniejsza zasada:
 Kontekst z materiałów użytkownika:
 {context}"""
 
-# Model Groq (otwarty model, wymog zaliczenia). Na obrone: gpt-oss-120b (najlepsza jakosc z dostepnych,
-# swiezy budzet 200K/dzien) bo dzienny limit llama-3.3-70b-versatile (100K) zostal wyczerpany.
-# Powrot na 70B: odkomentuj nizej. Awaryjnie tez: "meta-llama/llama-4-scout-17b-16e-instruct" (500K/dzien).
-MODEL = "openai/gpt-oss-120b"
+# Model Groq (otwarty model, wymog zaliczenia). Na obrone: scout (swiezy budzet 500K/dzien, NIE jest
+# modelem rozumujacym wiec zwraca czysty JSON) bo dzienny limit llama-3.3-70b-versatile (100K) wyczerpany,
+# a gpt-oss-120b jako model rozumujacy gubil JSON na pelnych plikach (preambula rozumowania + uciecie).
+# Powrot na 70B / proba 120B: odkomentuj odpowiednia linie.
+MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+# MODEL = "openai/gpt-oss-120b"
 # MODEL = "llama-3.3-70b-versatile"
 
 # Stałe sterujące podziałem tekstu i limitem tokenów Groq.
 BATCH_SIZE = 1800                       # max znaków tekstu w jednej porcji (mniej pojęć = pełniejsze, nieucięte karty)
 MAX_OUTPUT_TOKENS = 4500                # sufit długości odpowiedzi modelu (z zapasem na bogate wyjaśnienia)
-TPM_LIMIT = 8000                        # limit tokenów na minutę (gpt-oss-120b = 8K TPM, Groq free tier)
+TPM_LIMIT = 28000                       # limit tokenów na minutę (scout = 30K TPM, margines bezpieczeństwa)
 TPM_REFILL_PER_SEC = TPM_LIMIT / 60     # ile tokenów budżetu wraca na sekundę
 NEXT_BATCH_COST = 5800                  # szacowany koszt jednej porcji (wejście ~1300 + max_tokens 4500)
 MAX_RATE_LIMIT_WAITS = 6                # ile razy max odczekujemy na odnowienie limitu, potem błąd
