@@ -1,0 +1,9 @@
+# Jeden, staly CIEMNY motyw (zrezygnowalismy z jasnego). base="dark" sprawia, ze apka
+# otwiera sie na ciemno domyslnie, takze na Streamlit Cloud - niezaleznie od przegladarki.
+# Kolory dobrane pod karty: secondaryBackgroundColor = tlo karty (#1a1a24).
+[theme]
+base = "dark"
+backgroundColor = "#0d0d12"
+secondaryBackgroundColor = "#1a1a24"
+textColor = "#e8e6e0"
+primaryColor = "#ef5350"

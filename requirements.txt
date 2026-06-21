@@ -1,0 +1,8 @@
+faiss-cpu
+langchain-huggingface
+numpy
+openai
+PyMuPDF
+python-docx
+streamlit>=1.40
+sentence-transformers
