@@ -67,6 +67,14 @@ CARD_STYLE = """
 .b-violet {background:rgba(176,107,255,.05);border-left-color:#b06bff;}
 .b-violet p {margin:4px 0;font-size:13.5px;line-height:1.6;}
 .b-violet b {color:#b06bff;font-weight:600;}
+/* Zwijana karta: naglowek (Pojecie + nazwa) siedzi w <summary>, reszta w ciele <details>.
+   Chowamy domyslny trojkat przegladarki i dajemy wlasny chevron, ktory obraca sie po rozwinieciu. */
+details.karta > summary {list-style:none;cursor:pointer;position:relative;padding-right:24px;outline:none;}
+details.karta > summary::-webkit-details-marker {display:none;}
+details.karta > summary::after {content:'';position:absolute;right:0;top:50%;width:9px;height:9px;
+        border-right:2px solid #66ffff;border-bottom:2px solid #66ffff;
+        transform:translateY(-50%) rotate(45deg);transition:transform .2s ease;opacity:.85;}
+details.karta[open] > summary::after {transform:translateY(-50%) rotate(225deg);}
 </style>
 """
 
@@ -96,20 +104,24 @@ def render_parametry(items):
     return f'<div class="lbl l-violet">Parametry</div><div class="box b-violet">{lista}</div>'
 
 def render_card(pojecie_data):
+    # Karta zwijana: <summary> to klikalny naglowek (etykieta Pojecie + nazwa) widoczny zawsze,
+    # reszta (wyjasnienie, analogia, dol) odslania sie po rozwinieciu. Start zwiniety - brak atrybutu open.
     # Dol karty: skladniki (kroki/czesci) + ewentualne parametry. Oba opcjonalne -
     # pojecia czysto opisowe nie maja zadnego i karta konczy sie na analogii.
     dol_html = (render_skladniki(pojecie_data.get("skladniki", []))
                 + render_parametry(pojecie_data.get("parametry", [])))
     return f"""
-    <div class="karta">
-        <div class="lbl lbl-top l-blue">Pojęcie</div>
-        <div class="concept">{pojecie_data['pojecie']}</div>
+    <details class="karta">
+        <summary>
+            <div class="lbl lbl-top l-blue">Pojęcie</div>
+            <div class="concept">{pojecie_data['pojecie']}</div>
+        </summary>
         <div class="lbl l-teal">Wyjaśnienie pojęcia</div>
         <div class="box b-teal">{pojecie_data['wyjasnienie']}</div>
         <div class="lbl l-amber">Analogia z życia</div>
         <div class="box b-amber">{pojecie_data['analogia']}</div>
         {dol_html}
-    </div>
+    </details>
     """
 
 # STAN PLIKOW
@@ -225,6 +237,7 @@ if doc is not None and doc["faiss_index"] is not None:
 # KARTY POJEC
 if doc is not None and doc["pojecia"]:
     st.markdown(CARD_STYLE, unsafe_allow_html=True)
+    st.caption(f"Wygenerowano {len(doc['pojecia'])} kart pojęć")
     for p in doc["pojecia"]:
         st.markdown(render_card(p), unsafe_allow_html=True)
 
