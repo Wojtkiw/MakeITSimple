@@ -101,7 +101,7 @@ def _concept_core(name):
 
 
 # Usuwa z warto_znac terminy, które mają własną kartę pojęcia na liście.
-# Model czasem wrzuca tam terminy, które sam właśnie wyjaśnił — to byłoby redundantne.
+# Model czasem wrzuca tam terminy, które sam właśnie wyjaśnił - to byłoby redundantne.
 def _filter_warto_znac(pojecia):
     concept_cores = {_concept_core(p.get("pojecie", "")) for p in pojecia}
     for p in pojecia:
