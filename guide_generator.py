@@ -40,18 +40,17 @@ ZASADY:
 Kontekst z materiałów użytkownika:
 {context}"""
 
-# Model Groq (otwarty model, wymog zaliczenia). Na obrone: scout (swiezy budzet 500K/dzien, NIE jest
-# modelem rozumujacym wiec zwraca czysty JSON) bo dzienny limit llama-3.3-70b-versatile (100K) wyczerpany,
-# a gpt-oss-120b jako model rozumujacy gubil JSON na pelnych plikach (preambula rozumowania + uciecie).
-# Powrot na 70B / proba 120B: odkomentuj odpowiednia linie.
-MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+# Model Groq (otwarty model, wymog zaliczenia). 70B: bogatsze, pelniejsze karty; po dodaniu
+# salvage uciete porcje nie gina, wiec wieksza gadatliwosc 70B przestala szkodzic. Dzienny limit
+# 70B to 100K tokenow (scout ma 500K) - przy wyczerpaniu odkomentuj scout jako rezerwe.
+MODEL = "llama-3.3-70b-versatile"
+# MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 # MODEL = "openai/gpt-oss-120b"
-# MODEL = "llama-3.3-70b-versatile"
 
 # Stałe sterujące podziałem tekstu i limitem tokenów Groq.
 BATCH_SIZE = 1800                       # max znaków tekstu w jednej porcji (mniej pojęć = pełniejsze, nieucięte karty)
 MAX_OUTPUT_TOKENS = 4500                # sufit długości odpowiedzi modelu (z zapasem na bogate wyjaśnienia)
-TPM_LIMIT = 28000                       # limit tokenów na minutę (scout = 30K TPM, margines bezpieczeństwa)
+TPM_LIMIT = 11000                       # limit tokenów na minutę (70B free = 12K TPM, margines bezpieczeństwa)
 TPM_REFILL_PER_SEC = TPM_LIMIT / 60     # ile tokenów budżetu wraca na sekundę
 NEXT_BATCH_COST = 5800                  # szacowany koszt jednej porcji (wejście ~1300 + max_tokens 4500)
 MAX_RATE_LIMIT_WAITS = 6                # ile razy max odczekujemy na odnowienie limitu, potem błąd
@@ -86,6 +85,49 @@ def _canon_keys(obj):
     if isinstance(obj, list):
         return [_canon_keys(x) for x in obj]
     return obj
+
+
+# Ratuje pojęcia z uciętej/wadliwej odpowiedzi modelu. Gdy gęsta porcja przekroczy
+# max_tokens, JSON urywa się w połowie i json.loads() rzuca wyjątek - bez tej funkcji
+# cała porcja (kilkanaście kart) przepadała. Skanujemy tekst od pierwszej "[",
+# zbierając kolejne zbalansowane obiekty {...} na poziomie tablicy i parsując każdy
+# osobno; ostatni, niedokończony obiekt jest pomijany. Cudzysłowy i sekwencje \" są
+# respektowane, żeby nawiasy w treści nie myliły licznika zagnieżdżenia.
+def _salvage_pojecia(raw):
+    start = raw.find("[")
+    if start == -1:
+        return []
+    objs = []
+    depth = 0
+    in_str = False
+    escape = False
+    obj_start = None
+    for idx in range(start + 1, len(raw)):
+        ch = raw[idx]
+        if in_str:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch == "{":
+            if depth == 0:
+                obj_start = idx
+            depth += 1
+        elif ch == "}":
+            if depth > 0:
+                depth -= 1
+                if depth == 0 and obj_start is not None:
+                    try:
+                        objs.append(json.loads(raw[obj_start:idx + 1]))
+                    except json.JSONDecodeError:
+                        pass
+                    obj_start = None
+    return objs
 
 
 # Normalizacja tekstu do porównań: małe litery, bez białych znaków na brzegach.
@@ -170,7 +212,9 @@ def _generate_batch(client, batch_text):
         data = _canon_keys(json.loads(raw))
         return data["pojecia"], remaining_tokens
     except (json.JSONDecodeError, KeyError):
-        return [], remaining_tokens
+        # Odpowiedź ucięta na max_tokens albo wadliwy JSON: zamiast tracić całą
+        # porcję, odzyskujemy kompletne karty sprzed miejsca ucięcia.
+        return _canon_keys(_salvage_pojecia(raw)), remaining_tokens
 
 
 # Odlicza sekundy w pasku postępu zamiast zamrażać UI na time.sleep.
