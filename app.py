@@ -100,7 +100,7 @@ QUIZ_STYLE = """
 .qz-mut {color:#85837b;padding:6px 13px;}
 .qz-mark {margin-left:auto;font-weight:700;}
 .qz-ok .qz-mark {color:#00ff99;} .qz-bad .qz-mark {color:#ff5c5c;}
-.qz-foot {font-size:12px;margin:7px 0 0;}
+.qz-foot {font-size:11px;margin:7px 0 0;}
 .qz-foot-ok {color:#00ff99;} .qz-foot-bad {color:#ff5c5c;}
 </style>
 """
@@ -122,11 +122,21 @@ def render_parametry(items):
         return ""
     wiersze = []
     for i in items:
-        nazwa = i.get("nazwa", "")
-        opis = i.get("opis", "")
-        wartosc = i.get("wartosc", "")
-        opis_html = f" ({opis})" if opis else ""
-        wiersze.append(f'<p><b>{nazwa}</b>{opis_html} — {wartosc}</p>')
+        nazwa = (i.get("nazwa") or "").strip()
+        opis = (i.get("opis") or "").strip()
+        wartosc = (i.get("wartosc") or "").strip()
+        # Model czasem zamienia pola miejscami - gdy brak symbolu, uzyj opisu jako etykiety.
+        if not nazwa:
+            nazwa, opis = opis, ""
+        if not nazwa:
+            continue
+        # Nie dubluj, gdy model wrzucil to samo w nazwe i opis ("X (X)").
+        opis_html = f" ({opis})" if opis and opis.lower() != nazwa.lower() else ""
+        # Wartosc opcjonalna - bez niej nie zostawiamy wiszacego ": ".
+        wartosc_html = f": {wartosc}" if wartosc else ""
+        wiersze.append(f'<p><b>{nazwa}</b>{opis_html}{wartosc_html}</p>')
+    if not wiersze:
+        return ""
     lista = "".join(wiersze)
     return f'<div class="lbl l-violet">Parametry</div><div class="box b-violet">{lista}</div>'
 
@@ -392,6 +402,8 @@ if doc is not None and doc["pojecia"]:
         for i, q in enumerate(doc["quiz"], 1):
             wybrana = doc["quiz_answers"][i - 1] if doc["quiz_answers"] else None
             st.markdown(render_quiz_result(q, i, wybrana), unsafe_allow_html=True)
+        # Odstep, zeby ostatnia stopka werdyktu nie sklejala sie z przyciskiem regeneracji.
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
         if st.button("Wygeneruj kolejne 10"):
             if _start_quiz_round(doc):
                 st.rerun()

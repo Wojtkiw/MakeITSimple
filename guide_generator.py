@@ -21,14 +21,14 @@ FORMAT ODPOWIEDZI — zwróć WYŁĄCZNIE poprawny JSON, bez markdown, bez ```js
       {{"nazwa": "nazwa kroku, części lub elementu", "opis": "kilka słów: co to / co robi"}}
     ],
     "parametry": [
-      {{"nazwa": "nazwa parametru", "opis": "za co odpowiada", "wartosc": "konkretna typowa wartość lub zakres, np. '50-200' albo '0,6-0,95'; gdy fragment nie podaje liczb, użyj typowych wartości ze swojej wiedzy, nie pisz 'zmienna'"}}
+      {{"nazwa": "krótki symbol lub nazwa parametru, np. 'N', 'p_c', 'k', 'learning rate'", "opis": "czym jest ten parametr / za co odpowiada, np. 'rozmiar populacji', 'prawdopodobieństwo krzyżowania' — MUSI różnić się od pola nazwa, nie powtarzaj tego samego tekstu", "wartosc": "opcjonalnie typowa wartość lub zakres, np. '50-200'; jeśli jej nie znasz, zostaw pusty string"}}
     ]
   }}
 ]}}
 
 DÓŁ KARTY — pola "skladniki" / "parametry" (oba opcjonalne, niezależne od siebie):
 - "skladniki": jeśli pojęcie ma nazwane kroki, części składowe lub elementy (np. etapy algorytmu, składowe wzoru, warstwy architektury) — wypisz je KOMPLETNIE, po kolei, każdy z krótkim opisem (nie ucinaj do kilku). Jeśli pojęcie jest czysto opisowe i nie ma naturalnych części — zostaw [].
-- "parametry": jeśli pojęcie ma istotne nastawy/hiperparametry (np. liczba sąsiadów k, rozmiar populacji, learning rate) — wypisz je z typową wartością lub zakresem. Jeśli nie ma sensownych parametrów — zostaw [].
+- "parametry": jeśli pojęcie ma istotne nastawy/hiperparametry — wypisz każdy jako PARĘ: krótki symbol/nazwa w polu "nazwa" (np. "N", "p_c", "k") + wyjaśnienie czym jest w polu "opis" (np. "rozmiar populacji", "prawdopodobieństwo krzyżowania"). NIGDY nie wpisuj tego samego tekstu w "nazwa" i "opis" — to ma być symbol + jego znaczenie, jak "N" = "rozmiar populacji". Pole "wartosc" jest opcjonalne (typowa liczba/zakres albo pusty string). Jeśli pojęcie nie ma sensownych parametrów — zostaw [].
 - Wiele pojęć (zwłaszcza z innych dziedzin) nie ma ani składników, ani parametrów — wtedy zostaw oba puste ([]). Karta skończy się wtedy na analogii. To jest poprawne i lepsze niż sztuczne wypełnianie pól.
 
 ZASADY:
@@ -247,7 +247,10 @@ def generate_guide(raw_text, progress_callback=None):
 # Pobiera k fragmentów najbliższych znaczeniowo pytaniu i każe modelowi odpowiedzieć
 # WYŁĄCZNIE z nich; brak pokrycia -> jawne "Nie znalazłem tego w dokumencie".
 # Zwraca (odpowiedz, uzyte_fragmenty), żeby UI mogło pokazać dowód RAG.
-def answer_question(question, faiss_index, k=3, client=None):
+# k=8, bo embedder all-MiniLM jest anglojęzyczny i na polskim daje płaskie odległości
+# (właściwy fragment bywa dopiero ~6. w rankingu); węższe k gubił trafny chunk i model
+# odpowiadał "Nie znalazłem", choć temat był w materiale.
+def answer_question(question, faiss_index, k=8, client=None):
     fragments = retrieve_docs(question, faiss_index, k=k)
     context = "\n\n".join(f.get("text", "") for f in fragments)
     if client is None:
