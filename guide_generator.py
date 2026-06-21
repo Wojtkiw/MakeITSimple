@@ -54,14 +54,16 @@ Pole "warto_znac" — najważniejsza zasada:
 Kontekst z materiałów użytkownika:
 {context}"""
 
-# Model Groq (otwarty model, wymog zaliczenia). Wersja wdrozeniowa: Llama 3.3 70B.
-# Awaryjnie, gdyby darmowy limit Groq spowalnial demo: "meta-llama/llama-4-scout-17b-16e-instruct".
-MODEL = "llama-3.3-70b-versatile"
+# Model Groq (otwarty model, wymog zaliczenia). Na obrone: gpt-oss-120b (najlepsza jakosc z dostepnych,
+# swiezy budzet 200K/dzien) bo dzienny limit llama-3.3-70b-versatile (100K) zostal wyczerpany.
+# Powrot na 70B: odkomentuj nizej. Awaryjnie tez: "meta-llama/llama-4-scout-17b-16e-instruct" (500K/dzien).
+MODEL = "openai/gpt-oss-120b"
+# MODEL = "llama-3.3-70b-versatile"
 
 # Stałe sterujące podziałem tekstu i limitem tokenów Groq.
 BATCH_SIZE = 1800                       # max znaków tekstu w jednej porcji (mniej pojęć = pełniejsze, nieucięte karty)
 MAX_OUTPUT_TOKENS = 4500                # sufit długości odpowiedzi modelu (z zapasem na bogate wyjaśnienia)
-TPM_LIMIT = 12000                       # limit tokenów na minutę (Llama 3.3 70B, Groq free tier)
+TPM_LIMIT = 8000                        # limit tokenów na minutę (gpt-oss-120b = 8K TPM, Groq free tier)
 TPM_REFILL_PER_SEC = TPM_LIMIT / 60     # ile tokenów budżetu wraca na sekundę
 NEXT_BATCH_COST = 5800                  # szacowany koszt jednej porcji (wejście ~1300 + max_tokens 4500)
 MAX_RATE_LIMIT_WAITS = 6                # ile razy max odczekujemy na odnowienie limitu, potem błąd
